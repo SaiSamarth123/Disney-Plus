@@ -5,7 +5,7 @@ import Originals from "./Originals";
 import Recommends from "./Recommends";
 import Trending from "./Trending";
 import Viewers from "./Viewers";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import db from "../firebase";
 import { setMovies } from "../features/movie/movieSlice";
@@ -14,45 +14,61 @@ import { selectUserName } from "../features/user/userSlice";
 const Home = (props) => {
   const dispatch = useDispatch();
   const userName = useSelector(selectUserName);
-  let recommends = [];
-  let newDisneys = [];
-  let originals = [];
-  let trending = [];
+  let recommendsRef = useRef([]);
+  let newDisneysRef = useRef([]);
+  let originalsRef = useRef([]);
+  let trendingRef = useRef([]);
 
   useEffect(() => {
     console.log("hello");
     db.collection("movies").onSnapshot((snapshot) => {
-      snapshot.docs.map((doc) => {
-        console.log(recommends);
+      snapshot.docs.forEach((doc) => {
+        console.log(recommendsRef);
         switch (doc.data().type) {
           case "recommend":
-            recommends = [...recommends, { id: doc.id, ...doc.data() }];
+            recommendsRef.current = [
+              ...recommendsRef.current,
+              { id: doc.id, ...doc.data() },
+            ];
             break;
 
           case "new":
-            newDisneys = [...newDisneys, { id: doc.id, ...doc.data() }];
+            newDisneysRef.current = [
+              ...newDisneysRef.current,
+              { id: doc.id, ...doc.data() },
+            ];
             break;
 
           case "original":
-            originals = [...originals, { id: doc.id, ...doc.data() }];
+            originalsRef.current = [
+              ...originalsRef.current,
+              { id: doc.id, ...doc.data() },
+            ];
             break;
 
           case "trending":
-            trending = [...trending, { id: doc.id, ...doc.data() }];
+            trendingRef.current = [
+              ...trendingRef.current,
+              { id: doc.id, ...doc.data() },
+            ];
+            break;
+
+          default:
+            console.warn("Unknown movie type: ", doc.data().type);
             break;
         }
       });
 
       dispatch(
         setMovies({
-          recommend: recommends,
-          newDisney: newDisneys,
-          original: originals,
-          trending: trending,
+          recommend: recommendsRef.current,
+          newDisney: newDisneysRef.current,
+          original: originalsRef.current,
+          trending: trendingRef.current,
         })
       );
     });
-  }, [userName]);
+  }, [userName, dispatch]);
 
   return (
     <Container>

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
@@ -16,6 +16,19 @@ const Header = (props) => {
   const userName = useSelector(selectUserName);
   const userPhoto = useSelector(selectUserPhoto);
 
+  const setUser = useCallback(
+    (user) => {
+      dispatch(
+        setUserLoginDetails({
+          name: user.displayName,
+          email: user.email,
+          photo: user.photoURL,
+        })
+      );
+    },
+    [dispatch]
+  );
+
   useEffect(() => {
     auth.onAuthStateChanged(async (user) => {
       if (user) {
@@ -23,7 +36,7 @@ const Header = (props) => {
         history.push("/home");
       }
     });
-  }, [userName]);
+  }, [userName, setUser, history]);
 
   const handleAuth = () => {
     if (!userName) {
@@ -46,16 +59,6 @@ const Header = (props) => {
     }
   };
 
-  const setUser = (user) => {
-    dispatch(
-      setUserLoginDetails({
-        name: user.displayName,
-        email: user.email,
-        photo: user.photoURL,
-      })
-    );
-  };
-
   return (
     <Nav>
       <Logo>
@@ -71,23 +74,23 @@ const Header = (props) => {
               <img src="/images/home-icon.svg" alt="HOME" />
               <span>HOME</span>
             </a>
-            <a>
+            <a href="/home">
               <img src="/images/search-icon.svg" alt="SEARCH" />
               <span>SEARCH</span>
             </a>
-            <a>
+            <a href="/home">
               <img src="/images/watchlist-icon.svg" alt="WATCHLIST" />
               <span>WATCHLIST</span>
             </a>
-            <a>
+            <a href="/home">
               <img src="/images/original-icon.svg" alt="ORIGINALS" />
               <span>ORIGINALS</span>
             </a>
-            <a>
+            <a href="/home">
               <img src="/images/movie-icon.svg" alt="MOVIES" />
               <span>MOVIES</span>
             </a>
-            <a>
+            <a href="/home">
               <img src="/images/series-icon.svg" alt="SERIES" />
               <span>SERIES</span>
             </a>
